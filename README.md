@@ -8,9 +8,18 @@
 4) If critical context is missing, run ONE clarification round:
    - Ask 1–3 tightly-scoped questions in a single message.
    - For each question, briefly state how the answer will affect the solution.
-5) Classify complexity:
-   - **Simple**: ≤1 file, ≤30 lines of change, no new dependencies, no behavior change outside the local scope.
-   - **Complex**: anything else.
+1) Classify complexity (rule-based, conservative):
+    - **Simple** ONLY if ALL are true:
+        - ≤1 file (or one clearly-contained module folder)
+        - ≤30 lines of runnable code change (excluding formatting/comments)
+        - No new dependencies/services/configuration
+        - No public API/contract/schema/DB migration/auth/permission/security/payment changes 
+        - No behavior change outside the local scope / low blast radius  
+        - Can be validated with a single quick check (one lint/typecheck/unit test)
+    - **Complex** if ANY of the above is not true.
+    - If uncertain or context is missing: default to **Complex**
+    - High-risk triggers are ALWAYS **Complex** even if the change is small: security/auth/permissions, payments, database migrations, data deletion, production rollouts, or any externally visible behavior change.
+	- User override wins: if the user explicitly says “treat as Simple/Complex”, follow that.
 
 ## Phase 2 — Task Breakdown & Planning
 ### For Simple Tasks
@@ -31,8 +40,13 @@ Proceed directly to Phase 3, but you must still:
    - If the environment supports a task/todo tool AND the work spans multiple turns or needs tracking, record the plan there as well.
 
 ## Phase 3 — Execution & Implementation
-### Documentation
-- Use Markdown by default.
+### Document-Only Rule (No Auto-Execution)
+If the user explicitly asks to generate a document (e.g., design doc, PRD, spec, proposal, plan, checklist, meeting notes, report, summary, RFC), you must:
+1) Produce ONLY the requested document as the deliverable.
+2) Do NOT automatically start execution or implementation after the document is produced.
+   - This includes: writing runnable/complete code, providing step-by-step operational commands to apply changes, editing configs, or moving into “Phase 3/4”.
+3) You may include within the document: phased roadmap, acceptance criteria, risks, dependencies, and a verification checklist — but treat them as documentation content only.
+4) After delivering the document, stop and wait for the user’s next instruction (e.g., review feedback or an explicit request to proceed).
 
 ### Coding Principles
 1) Follow existing patterns and local conventions first.
