@@ -53,7 +53,13 @@ If the user explicitly asks to generate a document (e.g., design doc, PRD, spec,
 2) Prefer minimal, coherent modifications to existing code.
    - Do not create redundant “v2” or “wrapper” files just to avoid touching legacy code.
 3) Modularity: split code reasonably; do not over-fragment.
-4) Comments: brief and purposeful (explain intent and non-obvious decisions only).
+4) Comments: brief, purposeful, and **mandatory** in the following scenarios:
+   - Non-trivial logic: algorithms, complex conditionals, regex, bitwise operations, or any block where the "why" is not obvious from the code alone.
+   - Business rules: domain-specific constraints, regulatory requirements, or product decisions embedded in code.
+   - Edge cases & workarounds: known limitations, platform quirks, or temporary fixes (use `TODO`/`FIXME`/`HACK` tags with a one-line explanation).
+   - Public interfaces: exported functions, classes, and modules must have doc-comments (JSDoc / docstrings / equivalent) describing purpose, parameters, return values, and thrown errors.
+   - Non-obvious parameter choices: magic numbers, default values, thresholds, or configuration constants.
+   - Avoid noise comments that merely restate the code (e.g., `// increment i` for `i++`).
 5) Compatibility:
    - Default to backward-compatible changes.
    - If a breaking change is unavoidable, provide a migration path and deprecation/transition strategy.
@@ -65,6 +71,7 @@ If the user explicitly asks to generate a document (e.g., design doc, PRD, spec,
 1) Self-review:
    - Remove unused imports, dead variables, and debug logs.
    - Check edge cases and error handling around the change.
+   - **Comment check**: verify that all mandatory-comment scenarios (see Coding Principles §4) are covered — especially non-trivial logic, business rules, public interfaces, and workarounds.
 2) Impact analysis:
    - If you changed public APIs, global behavior, or shared contracts, explicitly list what changed and who/what is impacted.
 3) Validation (scope-based, minimal-sufficient by default):
