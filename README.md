@@ -66,6 +66,60 @@ Default to executing the task. Produce documents/plans/PRDs only when the user e
      - Multi-file changes, contract changes, or any case where validation was skipped: provide a short checklist (what changed / what else was updated / user-visible impact / remaining risks).
   5) Do not declare completion until validation passes; if it cannot run, disclose the gap, give the exact command, and note the most likely failure points.
 
+## Hooks-managed Docs
+When `hooks/` is present, integrate as follows.
+
+### Scope
+Hooks own ONLY: `docs/context/` (snapshots), `docs/decisions/` (ADRs), and the block between `<!-- context-index:start --> ... :end -->` in `AGENTS.md`/`CLAUDE.md`. Files in those folders that don't match the naming convention are preserved untouched but invisible to `list`/`search`/`rebuild`. Other `docs/*` is not hooks' business.
+
+### At task start
+1. `hooks/docs-overview.sh` — what's in `docs/`
+2. `hooks/doc.sh context list` — recent changes
+3. `hooks/doc.sh decision list` — major past decisions
+
+Expand individual docs only when topically relevant. Use `hooks/doc.sh <kind> search <query>` or `hooks/doc.sh search <query>` for keyword lookup.
+
+### Snapshot triggers
+Create (`hooks/doc.sh context new`) when ALL hold:
+- coherent finished unit of work
+- changes behavior, contracts, or developer understanding
+- the diff alone misses important context (motivation, alternatives rejected, traps avoided)
+
+Skip when typo/format/single-line guard, pure mechanical rename, or the diff is fully self-explanatory.
+
+### Decision (ADR) triggers
+Create (`hooks/doc.sh decision new <slug>`) when ANY holds:
+- picked between ≥2 viable alternatives with non-trivial trade-offs
+- introduced a new dependency / framework / external service
+- changed an established project pattern
+- decided NOT to do something proposed, with reasoning worth preserving
+
+Skip when no real alternative existed, or the choice is local and trivially reversible.
+
+### Timing — arc-based, not Step-4-based
+A "task arc" may span multiple Step 4 cycles (initial work + bug fixes + refinements). Snapshots represent finished arcs.
+
+- **At Step 4 end (Complex)**: if criteria met, set an internal "pending snapshot" with draft slug; state in final summary "Pending snapshot: <slug>". Do NOT write the file yet.
+- **Next user message**:
+  - Arc continues (bug / refinement / related question) → accumulate; pending remains.
+  - Arc concludes (explicit done/next/commit/「好」/「下一个」, OR a semantically unrelated new task — judge from query intent, not keywords alone) → flush: create the snapshot covering accumulated work, then handle the new task.
+- **Bug fixes during a pending arc**:
+  - Surface fix (per Step 1.5 triage) → fold into the pending candidate; no new file.
+  - Structural fix → create a new snapshot with `related:` referencing the original.
+- **Simple tasks**: skip hooks evaluation unless a pending candidate exists, in which case fold the work into the candidate.
+- **Decisions (ADRs)**: noted internally when made (Step 2/3); written at the same arc-end as the snapshot, FIRST (so the snapshot's `related:` can reference them).
+- **Cross-session**: at task start, if the most recent snapshot is today and topically related to the new task, use `hooks/doc.sh context append <slug>` to add a Follow-up section instead of creating new.
+
+### When uncertain
+Prefer NOT to create. Under-recording is recoverable (the user can ask "record this"); over-recording erodes index value.
+
+### Workflow
+- `hooks/doc.sh context new [<slug>]` → fill template (title, tags, body) → `hooks/doc.sh context rebuild`
+- `hooks/doc.sh context append <slug>` (cross-session continuation)
+- `hooks/doc.sh decision new <slug>` → fill template → `hooks/doc.sh decision rebuild`
+
+If the repo lacks `hooks/`, do not bootstrap them unless the user explicitly asks.
+
 ## Definitions
 - **Shared contract**: cross-module or external-facing interfaces — public API, RPC schema, DB schema, message format, CLI flags, exported types. Internal helpers used only within the current module do NOT count.
 - **Fallback code**: branches that handle unspecified or hypothetical future states. Defensive handling of states the current contract allows (nil, I/O error, validation failure) is required and not "fallback".
