@@ -29,14 +29,14 @@ Actions:
   search <query>      Keyword search within this kind.
 
 Examples:
-  hooks/doc.sh context new
-  hooks/doc.sh context new auth-jwt-migration
-  hooks/doc.sh context append auth-jwt-migration
-  hooks/doc.sh context list 10
-  hooks/doc.sh context rebuild
-  hooks/doc.sh decision new use-postgres
-  hooks/doc.sh decision rebuild
-  hooks/doc.sh search "JWT"
+  ~/.agent-hooks/doc.sh context new
+  ~/.agent-hooks/doc.sh context new auth-jwt-migration
+  ~/.agent-hooks/doc.sh context append auth-jwt-migration
+  ~/.agent-hooks/doc.sh context list 10
+  ~/.agent-hooks/doc.sh context rebuild
+  ~/.agent-hooks/doc.sh decision new use-postgres
+  ~/.agent-hooks/doc.sh decision rebuild
+  ~/.agent-hooks/doc.sh search "JWT"
 EOF
 }
 

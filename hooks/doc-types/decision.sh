@@ -10,7 +10,7 @@ doc_index_header() {
     cat <<'EOF'
 # Decision Index (ADRs)
 
-> Auto-maintained by `hooks/doc.sh decision`. Newest first.
+> Auto-maintained by `~/.agent-hooks/doc.sh decision`. Newest first.
 > Files not matching `NNNN-<slug>.md` are preserved but not indexed.
 
 | ID | Slug | Title | Status | Tags |
@@ -66,8 +66,8 @@ _decision_next_id() {
 # ----- new -------------------------------------------------------------------
 
 doc_new() {
-    [ -d "$DOC_DIR" ] || { echo "Decisions dir missing: $DOC_DIR. Run hooks/init.sh." >&2; return 1; }
-    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run hooks/init.sh." >&2; return 1; }
+    [ -d "$DOC_DIR" ] || { echo "Decisions dir missing: $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run ~/.agent-hooks/init.sh." >&2; return 1; }
 
     local raw="${1:-}"
     [ -n "$raw" ] || { echo "Usage: doc.sh decision new <slug>" >&2; return 2; }
@@ -95,7 +95,7 @@ doc_new() {
     ' "$DOC_INDEX" > "$DOC_INDEX.tmp" && mv "$DOC_INDEX.tmp" "$DOC_INDEX"
 
     echo "Created $file (ADR $id)"
-    echo "Next: edit it (title, status, body) then run: hooks/doc.sh decision rebuild"
+    echo "Next: edit it (title, status, body) then run: ~/.agent-hooks/doc.sh decision rebuild"
     echo "$file"
 }
 
@@ -112,7 +112,7 @@ doc_append() {
 doc_list() {
     local limit="${1:-30}"
     if [ ! -f "$DOC_INDEX" ]; then
-        echo "No decision index ($DOC_INDEX). Run hooks/init.sh." >&2
+        echo "No decision index ($DOC_INDEX). Run ~/.agent-hooks/init.sh." >&2
         return 0
     fi
     awk -v limit="$limit" '
@@ -138,7 +138,7 @@ doc_list() {
 # ----- rebuild ---------------------------------------------------------------
 
 doc_rebuild() {
-    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run hooks/init.sh." >&2; return 1; }
+    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
 
     local tmp; tmp="$(mktemp)"
     local rowfile; rowfile="$(mktemp)"

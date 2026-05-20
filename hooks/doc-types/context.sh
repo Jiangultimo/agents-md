@@ -12,7 +12,7 @@ doc_index_header() {
     cat <<'EOF'
 # Context Index
 
-> Auto-maintained by `hooks/doc.sh context`. Newest entries first.
+> Auto-maintained by `~/.agent-hooks/doc.sh context`. Newest entries first.
 > Files not matching `YYYY-MM-DD-<slug>.md` are preserved but not indexed.
 
 | Date | Slug | Title | Tags |
@@ -51,8 +51,8 @@ EOF
 # ----- new -------------------------------------------------------------------
 
 doc_new() {
-    [ -d "$DOC_DIR" ] || { echo "Context dir missing: $DOC_DIR. Run hooks/init.sh." >&2; return 1; }
-    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run hooks/init.sh." >&2; return 1; }
+    [ -d "$DOC_DIR" ] || { echo "Context dir missing: $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run ~/.agent-hooks/init.sh." >&2; return 1; }
 
     local raw="${1:-$(auto_slug)}"
     local slug; slug="$(slugify "$raw")"
@@ -78,7 +78,7 @@ doc_new() {
     ' "$DOC_INDEX" > "$DOC_INDEX.tmp" && mv "$DOC_INDEX.tmp" "$DOC_INDEX"
 
     echo "Created $file"
-    echo "Next: edit it (title, tags, body) then run: hooks/doc.sh context rebuild"
+    echo "Next: edit it (title, tags, body) then run: ~/.agent-hooks/doc.sh context rebuild"
     echo "$file"
 }
 
@@ -96,7 +96,7 @@ doc_append() {
 
     if [ "$count" -eq 0 ]; then
         echo "No snapshot matches slug: $slug" >&2
-        echo "Did you mean: hooks/doc.sh context new $slug" >&2
+        echo "Did you mean: ~/.agent-hooks/doc.sh context new $slug" >&2
         return 1
     fi
     if [ "$count" -gt 1 ]; then
@@ -123,7 +123,7 @@ EOF
 doc_list() {
     local limit="${1:-30}"
     if [ ! -f "$DOC_INDEX" ]; then
-        echo "No context index ($DOC_INDEX). Run hooks/init.sh." >&2
+        echo "No context index ($DOC_INDEX). Run ~/.agent-hooks/init.sh." >&2
         return 0
     fi
     awk -v limit="$limit" '
@@ -149,7 +149,7 @@ doc_list() {
 # ----- rebuild ---------------------------------------------------------------
 
 doc_rebuild() {
-    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run hooks/init.sh." >&2; return 1; }
+    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
 
     local tmp; tmp="$(mktemp)"
     local rowfile; rowfile="$(mktemp)"

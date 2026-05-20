@@ -33,7 +33,7 @@ for d in "$DOCS_DIR"/*/; do
     hint=""
     kind="$(hooks_kind_for "$name")"
     if [ -n "$kind" ]; then
-        hint="   [hooks] → hooks/doc.sh $kind list"
+        hint="   [hooks] → ~/.agent-hooks/doc.sh $kind list"
     fi
     printf "  %-15s %3d files%s\n" "$name/" "$md_count" "$hint"
 done

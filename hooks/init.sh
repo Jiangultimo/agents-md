@@ -53,14 +53,14 @@ cat > "$BLOCK_TMP" <<EOF
 $MARKER_START
 ## Hooks-managed Docs
 
-This repo uses \`hooks/\` to maintain two doc categories:
+This repo uses globally-installed hooks scripts (at \`~/.agent-hooks/\`) to maintain two doc categories:
 
 - \`docs/context/\` — change snapshots (short-term memory)
 - \`docs/decisions/\` — architectural decision records (long-term memory)
 
-At task start: \`hooks/docs-overview.sh\` → \`hooks/doc.sh context list\` → \`hooks/doc.sh decision list\`. Expand individual docs only when topically relevant. Use \`hooks/doc.sh <kind> search <query>\` or \`hooks/doc.sh search <query>\` for keyword lookup.
+At task start: \`~/.agent-hooks/docs-overview.sh\` → \`~/.agent-hooks/doc.sh context list\` → \`~/.agent-hooks/doc.sh decision list\`. Expand individual docs only when topically relevant. Use \`~/.agent-hooks/doc.sh <kind> search <query>\` or \`~/.agent-hooks/doc.sh search <query>\` for keyword lookup.
 
-After completing an independent feature / refactor / investigation (arc end): \`hooks/doc.sh context new\`. After a non-trivial architectural choice: \`hooks/doc.sh decision new <slug>\`. See the project rules for full triggers & timing.
+After completing an independent feature / refactor / investigation (arc end): \`~/.agent-hooks/doc.sh context new\`. After a non-trivial architectural choice: \`~/.agent-hooks/doc.sh decision new <slug>\`. See the project rules for full triggers & timing.
 $MARKER_END
 EOF
 
@@ -75,4 +75,4 @@ else
     echo "Appended hooks block to $TARGET_PATH"
 fi
 
-echo "Done. Use: hooks/doc.sh context new   |   hooks/doc.sh decision new <slug>"
+echo "Done. Use: ~/.agent-hooks/doc.sh context new   |   ~/.agent-hooks/doc.sh decision new <slug>"

@@ -2,6 +2,10 @@
 
 Scripts that implement the project-doc SOP. Agents trigger them per the rules in the repo-root `README.md`; users can also run them manually.
 
+## Install
+
+`sync-agent-rules.sh all` symlinks this directory to `~/.agent-hooks/` so the scripts are reachable from any project's CWD. The synced agent rules reference `~/.agent-hooks/...` (absolute path), while the scripts themselves resolve the **target project** at call-time via `git rev-parse --show-toplevel` (falling back to `$PWD`) — so docs are always written into the project you're working in, not into this repo.
+
 ## Layout
 
 ```
@@ -19,25 +23,27 @@ hooks/
 
 ## Quick start
 
+After running `sync-agent-rules.sh all` once, scripts are reachable globally as `~/.agent-hooks/...`. Inside this repo you can still use the relative `./hooks/...` form.
+
 ```bash
-# Once per project
-./hooks/init.sh
+# Once per project (from inside the target project)
+~/.agent-hooks/init.sh
 
-# Daily use (agent or human)
-./hooks/docs-overview.sh                         # what's in docs/
-./hooks/doc.sh context list                      # recent snapshots
-./hooks/doc.sh decision list                     # past decisions
+# Daily use (agent or human; cwd = target project)
+~/.agent-hooks/docs-overview.sh                       # what's in docs/
+~/.agent-hooks/doc.sh context list                    # recent snapshots
+~/.agent-hooks/doc.sh decision list                   # past decisions
 
-./hooks/doc.sh context new [<slug>]              # create snapshot
-./hooks/doc.sh context append <slug>             # append Follow-up section
-./hooks/doc.sh context rebuild                   # refresh INDEX from frontmatter
+~/.agent-hooks/doc.sh context new [<slug>]            # create snapshot
+~/.agent-hooks/doc.sh context append <slug>           # append Follow-up section
+~/.agent-hooks/doc.sh context rebuild                 # refresh INDEX from frontmatter
 
-./hooks/doc.sh decision new <slug>               # create ADR (auto-numbered)
-./hooks/doc.sh decision rebuild
+~/.agent-hooks/doc.sh decision new <slug>             # create ADR (auto-numbered)
+~/.agent-hooks/doc.sh decision rebuild
 
-./hooks/doc.sh search "<query>"                  # cross-kind search
-./hooks/doc.sh kinds                             # list available kinds
-./hooks/doc.sh --help
+~/.agent-hooks/doc.sh search "<query>"                # cross-kind search
+~/.agent-hooks/doc.sh kinds                           # list available kinds
+~/.agent-hooks/doc.sh --help
 ```
 
 ## What hooks owns
