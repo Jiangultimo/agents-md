@@ -1,9 +1,16 @@
 #!/bin/bash
-# Initialize the project's hooks-managed doc setup:
-# - create docs/context/ and docs/decisions/ if missing
-# - create/refresh their INDEX.md files (backing up any pre-existing non-hooks INDEX)
-# - inject (or refresh) the project-context block in AGENTS.md / CLAUDE.md
-# Idempotent: re-running updates the injected block without touching unrelated content.
+# OPTIONAL explicit bootstrap. Normal usage does NOT require this — `doc.sh
+# <kind> new` and `rebuild` create docs/context/, docs/decisions/, and their
+# INDEX.md files lazily on first call.
+#
+# Run this when you want to:
+# - pre-create the doc dirs + INDEX files so they show up in `git status` /
+#   on the file tree before any snapshot exists, OR
+# - inject (or refresh) the project-context block in AGENTS.md / CLAUDE.md.
+#
+# Idempotent: re-running updates the injected block without touching unrelated
+# content; existing hooks-authored INDEX files are kept as-is; foreign INDEX
+# files are backed up before being replaced.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

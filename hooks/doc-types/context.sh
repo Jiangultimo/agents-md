@@ -48,11 +48,17 @@ TODO
 EOF
 }
 
+# Auto-create DOC_DIR and a fresh INDEX header if missing. Idempotent — never
+# touches an existing INDEX (foreign or hooks-authored).
+_ensure_dir() {
+    mkdir -p "$DOC_DIR"
+    [ -f "$DOC_INDEX" ] || doc_index_header > "$DOC_INDEX"
+}
+
 # ----- new -------------------------------------------------------------------
 
 doc_new() {
-    [ -d "$DOC_DIR" ] || { echo "Context dir missing: $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
-    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    _ensure_dir
 
     local raw="${1:-$(auto_slug)}"
     local slug; slug="$(slugify "$raw")"
@@ -123,7 +129,7 @@ EOF
 doc_list() {
     local limit="${1:-30}"
     if [ ! -f "$DOC_INDEX" ]; then
-        echo "No context index ($DOC_INDEX). Run ~/.agent-hooks/init.sh." >&2
+        doc_index_header
         return 0
     fi
     awk -v limit="$limit" '
@@ -149,7 +155,7 @@ doc_list() {
 # ----- rebuild ---------------------------------------------------------------
 
 doc_rebuild() {
-    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    _ensure_dir
 
     local tmp; tmp="$(mktemp)"
     local rowfile; rowfile="$(mktemp)"

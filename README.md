@@ -67,19 +67,12 @@ Default to executing the task. Produce documents/plans/PRDs only when the user e
   5) Do not declare completion until validation passes; if it cannot run, disclose the gap, give the exact command, and note the most likely failure points.
 
 ## Hooks-managed Docs
-Hooks scripts live globally at `~/.agent-hooks/` (a symlink installed by `sync-agent-rules.sh`). They are project-agnostic: invoked from any CWD, they write into the **target project's** `docs/` (resolved via `git rev-parse --show-toplevel`, falling back to `$PWD`).
-
-### When the SOP applies
-A project is hooks-initialized when EITHER:
-- the project's `AGENTS.md` / `CLAUDE.md` contains a `<!-- context-index:start -->` block, OR
-- `docs/context/INDEX.md` exists.
-
-If neither, the SOP does NOT apply — do not run hooks commands and do not bootstrap unless the user explicitly asks (`~/.agent-hooks/init.sh`).
+Hooks scripts live globally at `~/.agent-hooks/` (symlink installed by `sync-agent-rules.sh`). They are project-agnostic and zero-config: invoked from any CWD, they write into the **target project's** `docs/` (resolved via `git rev-parse --show-toplevel`, falling back to `$PWD`). The SOP is always on — there is no per-project init step.
 
 If `~/.agent-hooks/` itself is missing, the global install is incomplete — note it once and skip; do not attempt to recreate it.
 
 ### Scope
-Hooks own ONLY: `docs/context/` (snapshots), `docs/decisions/` (ADRs), and the block between `<!-- context-index:start --> ... :end -->` in `AGENTS.md`/`CLAUDE.md`. Files in those folders that don't match the naming convention are preserved untouched but invisible to `list`/`search`/`rebuild`. Other `docs/*` is not hooks' business.
+Hooks own ONLY: `docs/context/` (snapshots) and `docs/decisions/` (ADRs). These directories and their `INDEX.md` files are **created lazily on first `new`/`rebuild`** — never as a separate bootstrap step. Files in those folders that don't match the naming convention (`YYYY-MM-DD-<slug>.md` / `NNNN-<slug>.md`) are preserved untouched but invisible to `list`/`search`/`rebuild`. Other `docs/*` is not hooks' business.
 
 ### At task start
 1. `~/.agent-hooks/docs-overview.sh` — what's in `docs/`

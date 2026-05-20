@@ -9,12 +9,12 @@ source "$SCRIPT_DIR/lib/common.sh"
 
 DOCS_DIR="$PROJECT_ROOT/docs"
 
+echo "docs/  ($PROJECT_ROOT/docs)"
+
 if [ ! -d "$DOCS_DIR" ]; then
-    echo "No docs/ directory in $PROJECT_ROOT"
+    echo "  (empty — no docs/ yet; created lazily on first snapshot/decision)"
     exit 0
 fi
-
-echo "docs/  ($PROJECT_ROOT/docs)"
 
 # Hooks-managed dirs get a hint command. Mapping is hardcoded to the two kinds
 # we ship (folder name → command-line kind name).

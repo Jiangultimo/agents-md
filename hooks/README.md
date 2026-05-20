@@ -25,8 +25,10 @@ hooks/
 
 After running `sync-agent-rules.sh all` once, scripts are reachable globally as `~/.agent-hooks/...`. Inside this repo you can still use the relative `./hooks/...` form.
 
+**No per-project init is required.** `doc.sh <kind> new` and `rebuild` create `docs/context/`, `docs/decisions/`, and their `INDEX.md` files lazily on first call. `init.sh` exists only as an OPTIONAL explicit bootstrap (pre-create dirs, or inject the marker block into `AGENTS.md`/`CLAUDE.md` for visibility).
+
 ```bash
-# Once per project (from inside the target project)
+# Optional: explicit bootstrap (creates dirs + injects AGENTS.md block)
 ~/.agent-hooks/init.sh
 
 # Daily use (agent or human; cwd = target project)

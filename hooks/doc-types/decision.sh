@@ -63,11 +63,16 @@ _decision_next_id() {
     printf "%04d" $((max + 1))
 }
 
+# Auto-create DOC_DIR and a fresh INDEX header if missing. Idempotent.
+_ensure_dir() {
+    mkdir -p "$DOC_DIR"
+    [ -f "$DOC_INDEX" ] || doc_index_header > "$DOC_INDEX"
+}
+
 # ----- new -------------------------------------------------------------------
 
 doc_new() {
-    [ -d "$DOC_DIR" ] || { echo "Decisions dir missing: $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
-    [ -f "$DOC_INDEX" ] || { echo "INDEX missing: $DOC_INDEX. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    _ensure_dir
 
     local raw="${1:-}"
     [ -n "$raw" ] || { echo "Usage: doc.sh decision new <slug>" >&2; return 2; }
@@ -112,7 +117,7 @@ doc_append() {
 doc_list() {
     local limit="${1:-30}"
     if [ ! -f "$DOC_INDEX" ]; then
-        echo "No decision index ($DOC_INDEX). Run ~/.agent-hooks/init.sh." >&2
+        doc_index_header
         return 0
     fi
     awk -v limit="$limit" '
@@ -138,7 +143,7 @@ doc_list() {
 # ----- rebuild ---------------------------------------------------------------
 
 doc_rebuild() {
-    [ -d "$DOC_DIR" ] || { echo "No $DOC_DIR. Run ~/.agent-hooks/init.sh." >&2; return 1; }
+    _ensure_dir
 
     local tmp; tmp="$(mktemp)"
     local rowfile; rowfile="$(mktemp)"
