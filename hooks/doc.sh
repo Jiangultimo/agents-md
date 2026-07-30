@@ -13,6 +13,7 @@ source "$LIB"
 show_help() {
     cat <<'EOF'
 Usage: doc.sh <kind> <action> [args]
+       doc.sh brief                      # one-call task-start overview (all kinds, compact)
        doc.sh search <query>             # search across all kinds
        doc.sh kinds                      # list available kinds
        doc.sh -h | --help
@@ -52,6 +53,37 @@ case "${1:-}" in
     ""|-h|--help) show_help; exit 0 ;;
     kinds) list_kinds; exit 0 ;;
 esac
+
+# Cross-kind brief: doc.sh brief — one-call task-start overview.
+# Compact by design: an empty kind collapses to one line instead of a full
+# INDEX header, so the common no-docs case costs a handful of output lines.
+if [ "$1" = "brief" ]; then
+    bash "$SCRIPT_DIR/docs-overview.sh"
+    for kind in $(list_kinds); do
+        type_file="$SCRIPT_DIR/doc-types/$kind.sh"
+        (
+            # shellcheck source=/dev/null
+            source "$type_file"
+            if [ ! -f "$DOC_INDEX" ]; then
+                printf '%s: (none)\n' "$kind"
+                exit 0
+            fi
+            # Table lines only (header + separator + rows); skip title/blurb.
+            table="$(grep '^|' "$DOC_INDEX" || true)"
+            nrows="$(printf '%s\n' "$table" | grep -c '^|' || true)"
+            if [ "$nrows" -le 2 ]; then
+                printf '%s: (none)\n' "$kind"
+            else
+                printf '\n%s (%d):\n' "$kind" "$((nrows - 2))"
+                printf '%s\n' "$table" | head -12
+                if [ "$nrows" -gt 12 ]; then
+                    printf '… %d more — see: doc.sh %s list\n' "$((nrows - 12))" "$kind"
+                fi
+            fi
+        )
+    done
+    exit 0
+fi
 
 # Cross-kind search: doc.sh search <query>
 if [ "$1" = "search" ]; then

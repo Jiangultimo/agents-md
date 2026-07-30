@@ -65,9 +65,7 @@ This repo uses globally-installed hooks scripts (at \`~/.agent-hooks/\`) to main
 - \`docs/context/\` — change snapshots (short-term memory)
 - \`docs/decisions/\` — architectural decision records (long-term memory)
 
-At task start: \`~/.agent-hooks/docs-overview.sh\` → \`~/.agent-hooks/doc.sh context list\` → \`~/.agent-hooks/doc.sh decision list\`. Expand individual docs only when topically relevant. Use \`~/.agent-hooks/doc.sh <kind> search <query>\` or \`~/.agent-hooks/doc.sh search <query>\` for keyword lookup.
-
-After completing an independent feature / refactor / investigation (arc end): \`~/.agent-hooks/doc.sh context new\`. After a non-trivial architectural choice: \`~/.agent-hooks/doc.sh decision new <slug>\`. See the project rules for full triggers & timing.
+At task start: \`~/.agent-hooks/doc.sh brief\`. Keyword lookup: \`~/.agent-hooks/doc.sh search <query>\`. Creation commands, triggers, and timing are defined by the global agent rules — do not duplicate them here.
 $MARKER_END
 EOF
 

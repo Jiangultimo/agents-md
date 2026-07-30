@@ -1,4 +1,5 @@
 - Always respond in Chinese unless the user explicitly requests another language.
+- Answer questions clearly and plainly: do not fabricate, and do not dress answers in invented concepts or buzzword rhetoric.
 - The four steps below are a default scaffold, not a rigid checklist. Simple tasks may collapse or skip steps; Complex tasks follow the full sequence. The user may override the flow at any time.
 
 ## Prime Directive — Task First
@@ -72,12 +73,10 @@ Hooks scripts live globally at `~/.agent-hooks/` (symlink installed by `sync-age
 If `~/.agent-hooks/` itself is missing, the global install is incomplete — note it once and skip; do not attempt to recreate it.
 
 ### Scope
-Hooks own ONLY: `docs/context/` (snapshots) and `docs/decisions/` (ADRs). These directories and their `INDEX.md` files are **created lazily on first `new`/`rebuild`** — never as a separate bootstrap step. Files in those folders that don't match the naming convention (`YYYY-MM-DD-<slug>.md` / `NNNN-<slug>.md`) are preserved untouched but invisible to `list`/`search`/`rebuild`. Other `docs/*` is not hooks' business.
+Hooks own ONLY: `docs/context/` (snapshots) and `docs/decisions/` (ADRs). These directories and their `INDEX.md` files are **created lazily on first `new`/`rebuild`**. Files in those folders that don't match the naming convention (`YYYY-MM-DD-<slug>.md` / `NNNN-<slug>.md`) are preserved untouched and invisible to `list`/`rebuild` (`search` still scans every file). Other `docs/*` is not hooks' business.
 
 ### At task start
-1. `~/.agent-hooks/docs-overview.sh` — what's in `docs/`
-2. `~/.agent-hooks/doc.sh context list` — recent changes
-3. `~/.agent-hooks/doc.sh decision list` — major past decisions
+Run `~/.agent-hooks/doc.sh brief` — one call, compact overview of `docs/` plus recent snapshots and decisions. Skip it for conversational or trivially self-contained requests that need no project history.
 
 Expand individual docs only when topically relevant. Use `~/.agent-hooks/doc.sh <kind> search <query>` or `~/.agent-hooks/doc.sh search <query>` for keyword lookup.
 
@@ -105,20 +104,20 @@ A "task arc" may span multiple Step 4 cycles (initial work + bug fixes + refinem
 - **Next user message**:
   - Arc continues (bug / refinement / related question) → accumulate; pending remains.
   - Arc concludes (explicit done/next/commit/「好」/「下一个」, OR a semantically unrelated new task — judge from query intent, not keywords alone) → flush: create the snapshot covering accumulated work, then handle the new task.
+- **Before executing `git commit`**: flush the pending snapshot first — the commit is the arc's natural end. This anchors on the action itself, not on the user's phrasing.
 - **Bug fixes during a pending arc**:
   - Surface fix (per Step 1.5 triage) → fold into the pending candidate; no new file.
   - Structural fix → create a new snapshot with `related:` referencing the original.
 - **Simple tasks**: skip hooks evaluation unless a pending candidate exists, in which case fold the work into the candidate.
 - **Decisions (ADRs)**: noted internally when made (Step 2/3); written at the same arc-end as the snapshot, FIRST (so the snapshot's `related:` can reference them).
 - **Cross-session**: at task start, if the most recent snapshot is today and topically related to the new task, use `~/.agent-hooks/doc.sh context append <slug>` to add a Follow-up section instead of creating new.
+- **Known loss (accepted)**: if the session ends before any arc-conclusion signal, the pending snapshot is dropped. Under-recording is recoverable; do not pre-write files to hedge against this.
 
 ### When uncertain
 Prefer NOT to create. Under-recording is recoverable (the user can ask "record this"); over-recording erodes index value.
 
 ### Workflow
-- `~/.agent-hooks/doc.sh context new [<slug>]` → fill template (title, tags, body) → `~/.agent-hooks/doc.sh context rebuild`
-- `~/.agent-hooks/doc.sh context append <slug>` (cross-session continuation)
-- `~/.agent-hooks/doc.sh decision new <slug>` → fill template → `~/.agent-hooks/doc.sh decision rebuild`
+After any `new`: fill the template (title, tags, body), then run `~/.agent-hooks/doc.sh <kind> rebuild` to refresh the INDEX. `context append <slug>` adds a Follow-up section and needs no rebuild.
 
 ## Definitions
 - **Shared contract**: cross-module or external-facing interfaces — public API, RPC schema, DB schema, message format, CLI flags, exported types. Internal helpers used only within the current module do NOT count.

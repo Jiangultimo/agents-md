@@ -13,6 +13,10 @@ hooks/
 ├── init.sh                  # bootstrap a project (idempotent)
 ├── doc.sh                   # unified dispatcher: doc.sh <kind> <action> [args]
 ├── docs-overview.sh         # honest read-only listing of docs/
+├── pre-commit-flush-reminder.sh  # Claude Code PreToolUse hook (Bash matcher):
+│                            #   blocks the first `git commit` once per session
+│                            #   if a "Pending snapshot:" was declared, so the
+│                            #   flush isn't forgotten. Wired via ~/.claude/settings.json.
 ├── doc-types/
 │   ├── context.sh           # snapshots — docs/context/YYYY-MM-DD-<slug>.md
 │   └── decision.sh          # ADRs     — docs/decisions/NNNN-<slug>.md
@@ -32,9 +36,10 @@ After running `sync-agent-rules.sh all` once, scripts are reachable globally as 
 ~/.agent-hooks/init.sh
 
 # Daily use (agent or human; cwd = target project)
-~/.agent-hooks/docs-overview.sh                       # what's in docs/
-~/.agent-hooks/doc.sh context list                    # recent snapshots
-~/.agent-hooks/doc.sh decision list                   # past decisions
+~/.agent-hooks/doc.sh brief                           # task-start overview (docs/ + all kinds, compact)
+~/.agent-hooks/docs-overview.sh                       # docs/ layout only
+~/.agent-hooks/doc.sh context list                    # full context INDEX
+~/.agent-hooks/doc.sh decision list                   # full decision INDEX
 
 ~/.agent-hooks/doc.sh context new [<slug>]            # create snapshot
 ~/.agent-hooks/doc.sh context append <slug>           # append Follow-up section
@@ -59,7 +64,7 @@ After running `sync-agent-rules.sh all` once, scripts are reachable globally as 
 | `<root>/AGENTS.md` or `<root>/CLAUDE.md` block between `<!-- context-index:start --> ... :end -->` | hooks (refreshed on init) |
 | Everything else in `docs/` | not hooks' business |
 
-Files inside `docs/context/` and `docs/decisions/` that don't match the naming convention are preserved untouched but invisible to `list` / `search` / `rebuild`.
+Files inside `docs/context/` and `docs/decisions/` that don't match the naming convention are preserved untouched and invisible to `list` / `rebuild`; `search` still scans every file in those folders.
 
 ## Conventions
 
