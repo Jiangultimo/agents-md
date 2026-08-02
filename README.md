@@ -12,13 +12,18 @@
 1) Restate the request only when it is ambiguous, multi-part, or its scope is non-obvious.
 2) Implement exactly what is asked. Extend only to directly affected code, tests, docs, and integrations — never to unrelated cleanup or refactoring.
 3) If the task is clear, start. State assumptions only when they materially affect the solution.
-4) When uncertain, do the cheapest clarification first (read code, check docs, one grep). Ask the user only when genuinely blocked, in one tightly scoped round.
-5) Issue triage (bug / regression / unexpected behavior): read the relevant implementation and trace the data/control flow before proposing a fix, then classify:
+4) When the deliverable is a change and you are uncertain, do the cheapest clarification first (read code, check docs, one grep). Ask the user only when genuinely blocked, in one tightly scoped round. When the deliverable is a judgment, item 5 governs instead.
+5) Evidence before judgment. When the deliverable is a judgment rather than a change — review, evaluation, diagnosis, comparison, "what is this / is this correct / what should I do" — the conclusion IS the product, so a shallow read ships straight to the user instead of being caught by Step 4. In that case:
+   - Read the primary source behind every component the conclusion names. Filenames, README prose, comments, line counts, and a single grep hit are leads, not evidence; a claim about behavior requires reading the code that implements that behavior.
+   - Gather the evidence before forming the verdict, not after. Presentation may still lead with the conclusion — but nothing may be asserted that was not read first.
+   - Label anything not actually verified as unverified, or drop it. Never present an inference as a reading, or a remembered number as a counted one.
+   - Stop when every claim you intend to make is backed by something you read. Further breadth over areas the answer will not mention is waste, not diligence.
+6) Issue triage (bug / regression / unexpected behavior): read the relevant implementation and trace the data/control flow before proposing a fix, then classify:
    - Surface: symptom is local, root cause is isolated, an in-place fix does not contradict surrounding design → apply the smallest correct patch.
    - Structural: symptom is one manifestation of a deeper design/implementation problem (shared by other call sites, wrong abstraction, broken invariant, misplaced responsibility) → state the root cause and fix at the root rather than patching each symptom.
    When uncertain, read one level deeper before choosing. If the structural fix is too large for the current task, call out the root cause, apply a scoped fix, and record the follow-up.
    Skip triage entirely when the fix is mechanically obvious (typo, formatting, single-line guard on an already-typed-optional value).
-6) Complexity:
+7) Complexity:
    - Simple: local, reversible, no new dependencies/services/config, no public API/contract/schema/auth/payment change, verifiable with one small lint/typecheck/test.
    - Complex: spans multiple modules or contracts, needs milestones, rollout coordination, broader validation, or the user explicitly declares it Complex.
 
@@ -106,7 +111,7 @@ A "task arc" may span multiple Step 4 cycles (initial work + bug fixes + refinem
   - Arc concludes (explicit done/next/commit/「好」/「下一个」, OR a semantically unrelated new task — judge from query intent, not keywords alone) → flush: create the snapshot covering accumulated work, then handle the new task.
 - **Before executing `git commit`**: flush the pending snapshot first — the commit is the arc's natural end. This anchors on the action itself, not on the user's phrasing.
 - **Bug fixes during a pending arc**:
-  - Surface fix (per Step 1.5 triage) → fold into the pending candidate; no new file.
+  - Surface fix (per Step 1.6 triage) → fold into the pending candidate; no new file.
   - Structural fix → create a new snapshot with `related:` referencing the original.
 - **Simple tasks**: skip hooks evaluation unless a pending candidate exists, in which case fold the work into the candidate.
 - **Decisions (ADRs)**: noted internally when made (Step 2/3); written at the same arc-end as the snapshot, FIRST (so the snapshot's `related:` can reference them).
@@ -122,5 +127,6 @@ After any `new`: fill the template (title, tags, body), then run `~/.agent-hooks
 ## Definitions
 - **Shared contract**: cross-module or external-facing interfaces — public API, RPC schema, DB schema, message format, CLI flags, exported types. Internal helpers used only within the current module do NOT count.
 - **Fallback code**: branches that handle unspecified or hypothetical future states. Defensive handling of states the current contract allows (nil, I/O error, validation failure) is required and not "fallback".
-- **Obvious / clear** (Step 1.3, Step 1.5 skip clause): a competent contributor would not need to ask follow-up questions to begin work, or the fix is mechanical (typo, formatting, single-line guard).
+- **Judgment deliverable** (Step 1.5): the request is answered by an assessment rather than a change — review, evaluation, diagnosis, comparison, recommendation. Step 4 validation cannot catch a wrong one, because the conclusion itself is what ships.
+- **Obvious / clear** (Step 1.3, Step 1.6 skip clause): a competent contributor would not need to ask follow-up questions to begin work, or the fix is mechanical (typo, formatting, single-line guard).
 - **Implicit approval** (Risk § high-risk reversible): the user's request literally describes the change itself; the risk note is still surfaced, but no extra confirmation round is needed.
