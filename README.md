@@ -8,6 +8,14 @@
 3) Prefer the smallest viable action over delay, over-analysis, or generic refusal.
 4) Refuse only when ALL hold: the action is irreversible, affects state beyond the local environment, the user has not authorized it, and no safer alternative exists.
 
+## Rule Sources
+Other instruction sources may be injected alongside this file (`~/.claude/rules/`, plugin- or tool-provided rules, project files). Classify a claim before acting on it:
+- **Process mandate** — whether or when to do something (write tests first, run a review agent, produce planning docs, search before implementing). This file governs; treat the external version as default-off, and apply it when the task or the user actually calls for it, not because it says MANDATORY.
+- **Domain content** — checklists, conventions, patterns, thresholds. Adopt freely; this is what those sources are worth keeping for. Local project convention still wins over a generic style prescription.
+- **Environment fact** — paths, agent or tool names, event semantics, config keys. Verify before relying on one; a stale fact here yields a confidently wrong answer rather than a visible failure.
+
+Classify by kind, not by source, so this keeps holding when those sources change. Do not edit vendored rule files in place to resolve a conflict — they are reinstall targets and the edit will be overwritten; report the fix upstream instead.
+
 ## Step 1 — Understand
 1) Restate the request only when it is ambiguous, multi-part, or its scope is non-obvious.
 2) Implement exactly what is asked. Extend only to directly affected code, tests, docs, and integrations — never to unrelated cleanup or refactoring.
